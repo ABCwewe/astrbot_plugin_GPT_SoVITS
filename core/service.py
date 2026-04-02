@@ -19,6 +19,13 @@ class GPTSoVITSService:
         self.client = client
         self.local_data = local_data
 
+    def _detect_lang(text: str) -> str:
+        has_ja = any(
+            "\u3040" <= c <= "\u309f" or "\u30a0" <= c <= "\u30ff"
+            for c in text
+        )
+        return "ja" if has_ja else "zh"
+        
     async def load_model(self):
         if self.cfg.gpt_path:
             result = await self.client.set_gpt_weights(self.cfg.gpt_path)
@@ -50,6 +57,11 @@ class GPTSoVITSService:
             }
             params.update(filtered_params)
             logger.debug(f"已更新已有参数: {filtered_params}")
+
+        if params.get("text_lang") == "zh_ja_auto":
+            detected = self._detect_lang(text) if text else "zh"
+            logger.debug(f"zh_ja_auto 检测结果: {detected}")
+            params["text_lang"] = detected
 
         cached_audio = self.local_data.get_cached_audio(params)
         if cached_audio:
