@@ -19,6 +19,7 @@ class GPTSoVITSService:
         self.client = client
         self.local_data = local_data
 
+    @staticmethod
     def _detect_lang(text: str) -> str:
         has_ja = any(
             "\u3040" <= c <= "\u309f" or "\u30a0" <= c <= "\u30ff"
