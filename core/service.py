@@ -21,11 +21,15 @@ class GPTSoVITSService:
 
     @staticmethod
     def _detect_lang(text: str) -> str:
-        has_ja = any(
-            "\u3040" <= c <= "\u309f" or "\u30a0" <= c <= "\u30ff"
-            for c in text
+        total = len(text)
+        if total == 0:
+            return "zh"
+        kana_count = sum(
+            1 for c in text
+            if "\u3040" <= c <= "\u309f" or "\u30a0" <= c <= "\u30ff"
         )
-        return "ja" if has_ja else "zh"
+        ratio = kana_count / total
+        return "ja" if ratio > 0.4 else "zh"
         
     async def load_model(self):
         if self.cfg.gpt_path:
